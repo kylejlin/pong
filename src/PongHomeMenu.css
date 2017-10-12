@@ -11,3 +11,9 @@
 .PongHomeMenu-logo {
   height: 50%;
 }
+
+@media (orientation: portrait) {
+  .PongHomeMenu-logo {
+    width: 100%;
+  }
+}
