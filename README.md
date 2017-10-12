@@ -1,4 +1,4 @@
-#pong
+# pong
 
 A simple mobile pong game built with facebookincubator's create-react-app.
 
