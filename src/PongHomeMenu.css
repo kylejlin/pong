@@ -8,23 +8,6 @@
   text-align: center;
 }
 
-.PongHomeMenu-title {
-  font-size: 100px;
-  padding: 40px;
-}
-
-.PongHomeMenu-title .PongHomeMenu-title-P {
-  color: #db3236;
-}
-
-.PongHomeMenu-title .PongHomeMenu-title-o {
-  color: #3cba54;
-}
-
-.PongHomeMenu-title .PongHomeMenu-title-n {
-  color: #023893;
-}
-
-.PongHomeMenu-title .PongHomeMenu-title-g {
-  color: #f4c20d;
+.PongHomeMenu-logo {
+  height: 50%;
 }
