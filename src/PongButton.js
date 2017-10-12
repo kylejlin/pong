@@ -1,8 +1,6 @@
 import React from 'react';
-import Prefixer from 'inline-style-prefixer';
+import prefix from './prefixCSS';
 import './PongButton.css';
-
-const prefixer = new Prefixer();
 
 function PongButton({ onClick, children, icon, width, fontSize, align }) {
   const style = {
@@ -17,13 +15,11 @@ function PongButton({ onClick, children, icon, width, fontSize, align }) {
     style.transform = 'translate(-50%)';
   }
 
-  const prefixedStyle = prefixer.prefix(style);
-
   return (
     <div
       className="PongButton"
       onClick={onClick}
-      style={prefixedStyle}
+      style={prefix(style)}
     >{children}</div>
   );
 }
