@@ -61,14 +61,6 @@ class Pong extends Component {
         e.preventDefault();
       }
     }, { passive: false });
-
-    if (window.screen.lockOrientation) {
-      window.screen.lockOrientation('landscape');
-    }
-
-    if (window.screen.orientation && window.screen.orientation.lock) {
-      window.screen.orientation.lock('landscape');
-    }
   }
 
   render() {
