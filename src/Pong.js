@@ -8,9 +8,7 @@ class Pong extends Component {
     super(props);
 
     this.state = {
-      isRunning: false,
-      isPaused: false,
-      hasEnded: false,
+      currentScreen: 'HOME',
       orientation: this.getOrientation()
     };
 
@@ -32,7 +30,7 @@ class Pong extends Component {
     });
 
     window.addEventListener('touchmove', ({ changedTouches }) => {
-      if (this.state.isRunning) {
+      if (this.state.currentScreen === 'ACTIVE_GAME') {
         changedTouches = Array.from(changedTouches);
 
         const paddle0 = {
@@ -43,10 +41,10 @@ class Pong extends Component {
         };
 
         for (let touch of changedTouches) {
-          if (touch.clientX < (this.state.screen.WIDTH / 2)) {
-            paddle0.y = this.state.screen.HEIGHT - touch.clientY - (this.state.paddle0.HEIGHT / 2);
+          if (touch.clientX < (this.state.screenDimensions.WIDTH / 2)) {
+            paddle0.y = this.state.screenDimensions.HEIGHT - touch.clientY - (this.state.paddle0.HEIGHT / 2);
           } else {
-            paddle1.y = this.state.screen.HEIGHT - touch.clientY - (this.state.paddle1.HEIGHT / 2);
+            paddle1.y = this.state.screenDimensions.HEIGHT - touch.clientY - (this.state.paddle1.HEIGHT / 2);
           }
         }
 
@@ -55,7 +53,7 @@ class Pong extends Component {
     });
 
     document.body.addEventListener('touchstart', (e) => {
-      if (this.state.isRunning &&
+      if (this.state.currentScreen === 'ACTIVE_GAME' &&
         e.target.className.indexOf('PongButton') === -1
       ) {
         e.preventDefault();
@@ -64,28 +62,27 @@ class Pong extends Component {
   }
 
   render() {
-    if (this.state.isRunning) {
+    const { currentScreen } = this.state;
+
+    if (currentScreen === 'ACTIVE_GAME') {
       return <ActivePongGame
         orientation={this.state.orientation}
         objects={this.state}
         onPauseClicked={this.pause}
       />;
-    } else if (this.state.isPaused || this.state.hasEnded) {
+  } else if (currentScreen === 'GAME_PAUSED' || currentScreen === 'GAME_OVER') {
       return (
         <PongGameSummary
           scores={this.state.scores}
           timeLeft={this.state.timeLeft}
           onHomeClicked={() => {
             this.setState({
-              isRunning: false,
-              isPaused: false,
-              hasEnded: false
+              currentScreen: 'HOME'
             });
           }}
           onContinueClicked={() => {
             this.setState({
-              isRunning: true,
-              isPaused: false
+              currentScreen: 'ACTIVE_GAME'
             });
 
             this.timeLastUpdated = Date.now();
@@ -105,7 +102,7 @@ class Pong extends Component {
     const BALL_RADIUS = PADDLE_HEIGHT / 5;
 
     this.setState({
-      screen: {
+      screenDimensions: {
         WIDTH: window.innerWidth,
         HEIGHT: window.innerHeight
       }
@@ -139,18 +136,14 @@ class Pong extends Component {
         COLOR: '#f4c20d'
       },
 
-      screen: {
+      screenDimensions: {
         WIDTH: window.innerWidth,
         HEIGHT: window.innerHeight
       },
 
       timeLeft: this.config.GAME_DURATION,
 
-      isRunning: true,
-
-      isPaused: false,
-
-      hasEnded: false
+      currentScreen: 'ACTIVE_GAME'
     });
 
     this.timeLastUpdated = Date.now();
@@ -166,9 +159,9 @@ class Pong extends Component {
     ball.y += ball.dy;
 
     const acclerateUnlessLimitIsReached = () => {
-      if (ball.dx < (newState.screen.WIDTH / 2) &&
-      ball.dy < (newState.screen.HEIGHT / 2)) {
-        const ACCELERATION = newState.screen.WIDTH *
+      if (ball.dx < (newState.screenDimensions.WIDTH / 2) &&
+      ball.dy < (newState.screenDimensions.HEIGHT / 2)) {
+        const ACCELERATION = newState.screenDimensions.WIDTH *
           this.config.ACCELERATION_COEFFICIENT;
 
         ball.dx += ball.dx > 0 ? ACCELERATION : -ACCELERATION;
@@ -189,8 +182,8 @@ class Pong extends Component {
     if (ball.y < ball.RADIUS) {
       ball.y = (2 * ball.RADIUS) - ball.y;
       ball.dy = -ball.dy;
-    } else if (ball.y > (newState.screen.HEIGHT - ball.RADIUS)) {
-      ball.y = (2 * (newState.screen.HEIGHT - ball.RADIUS)) - ball.y;
+    } else if (ball.y > (newState.screenDimensions.HEIGHT - ball.RADIUS)) {
+      ball.y = (2 * (newState.screenDimensions.HEIGHT - ball.RADIUS)) - ball.y;
       ball.dy = -ball.dy;
     }
   }
@@ -203,13 +196,13 @@ class Pong extends Component {
     let ticksDue = Math.floor((Date.now() - this.timeLastUpdated) / this.tickTime);
 
     while (ticksDue--) {
-      if (this.state.isRunning) {
+      if (this.state.currentScreen === 'ACTIVE_GAME') {
         this.tick();
         this.timeLastUpdated += this.tickTime;
       }
     }
 
-    if (this.state.isRunning) {
+    if (this.state.currentScreen === 'ACTIVE_GAME') {
       window.requestAnimationFrame(this.executeDueTicks);
     }
   }
@@ -279,16 +272,15 @@ class Pong extends Component {
 
   pause() {
     this.setState({
-      isRunning: false,
-      isPaused: true
+      currentScreen: 'GAME_PAUSED'
     });
   }
 
   resetBallAfterGoal_(newState) {
-    newState.ball.x = newState.screen.WIDTH / 2;
-    newState.ball.y = newState.screen.HEIGHT / 2;
-    newState.ball.dx = this.getRandomBallSpeed_(newState.screen.WIDTH);
-    newState.ball.dy = this.getRandomBallSpeed_(newState.screen.WIDTH);
+    newState.ball.x = newState.screenDimensions.WIDTH / 2;
+    newState.ball.y = newState.screenDimensions.HEIGHT / 2;
+    newState.ball.dx = this.getRandomBallSpeed_(newState.screenDimensions.WIDTH);
+    newState.ball.dy = this.getRandomBallSpeed_(newState.screenDimensions.WIDTH);
   }
 
   tick() {
@@ -299,7 +291,7 @@ class Pong extends Component {
     if (newState.ball.x < 0) {
       newState.scores[1] += this.calculatePointsAwarded_(newState);
       this.resetBallAfterGoal_(newState);
-    } else if (newState.ball.x > this.state.screen.WIDTH) {
+    } else if (newState.ball.x > this.state.screenDimensions.WIDTH) {
       newState.scores[0] += this.calculatePointsAwarded_(newState);
       this.resetBallAfterGoal_(newState);
     }
@@ -307,8 +299,7 @@ class Pong extends Component {
     newState.timeLeft -= this.tickTime;
 
     if (newState.timeLeft <= 0) {
-      newState.isRunning = false;
-      newState.hasEnded = true;
+      newState.currentScreen = 'GAME_OVER';
     }
     this.setState(newState);
   }
