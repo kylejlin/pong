@@ -33,6 +33,8 @@ class Pong extends Component {
 
     window.addEventListener('touchmove', ({ changedTouches }) => {
       if (this.state.isRunning) {
+        changedTouches = Array.from(changedTouches);
+
         const paddle0 = {
           ...this.state.paddle0
         };
