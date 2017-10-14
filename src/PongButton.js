@@ -1,25 +1,17 @@
 import React from 'react';
-import prefix from './prefixCSS';
 import './PongButton.css';
 
-function PongButton({ onClick, children, icon, width, fontSize, align }) {
-  const style = {
-    width: width ? width : 'min-content',
-    fontSize: fontSize ? fontSize : '60px'
-  };
+function PongButton({ onClick, children, extraClassNames }) {
+  extraClassNames = 'string' === typeof extraClassNames ? extraClassNames : '';
 
-  if (align === 'bottom') {
-    style.position = 'absolute';
-    style.bottom = '0px';
-    style.left = '50%';
-    style.transform = 'translate(-50%)';
+  if (extraClassNames !== '') {
+    extraClassNames = ' ' + extraClassNames;
   }
 
   return (
     <div
-      className="PongButton"
+      className={"PongButton" + extraClassNames}
       onClick={onClick}
-      style={prefix(style)}
     >{children}</div>
   );
 }

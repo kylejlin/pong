@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ActivePongGame from './ActivePongGame';
 import PongHomeMenu from './PongHomeMenu';
 import PongGameSummary from './PongGameSummary';
+import PongSettingsEditor from './PongSettingsEditor';
 
 class Pong extends Component {
   constructor(props) {
@@ -9,19 +10,16 @@ class Pong extends Component {
 
     this.state = {
       currentScreen: 'HOME',
-      orientation: this.getOrientation()
+      orientation: this.getOrientation(),
+      Config: this.loadConfig() || {
+        STARTING_SPEED_MIN_COEFFICIENT: 0.01,
+        STARTING_SPEED_MAX_COEFFICIENT: 0.02,
+        ACCELERATION_COEFFICIENT: 0.002,
+        GAME_DURATION: 1.5e4
+      }
     };
 
-    this.executeDueTicks = this.executeDueTicks.bind(this);
-    this.start = this.start.bind(this);
-    this.pause = this.pause.bind(this);
-
-    this.config = this.loadConfig() || {
-      STARTING_SPEED_MIN_COEFFICIENT: 0.01,
-      STARTING_SPEED_MAX_COEFFICIENT: 0.02,
-      ACCELERATION_COEFFICIENT: 0.002,
-      GAME_DURATION: 1.5e4
-    };
+    this.bindCallbacks_();
 
     window.addEventListener('resize', () => {
       this.setState({
@@ -91,8 +89,23 @@ class Pong extends Component {
           }}
         />
       );
-    } else {
-      return <PongHomeMenu onStartButtonClicked={this.start} />;
+    } else if (currentScreen === 'HOME') {
+      return (<PongHomeMenu
+        onStartButtonClicked={this.start}
+        onSettingsButtonClicked={this.openSettingsEditor}
+      />);
+    } else if (currentScreen === 'SETTINGS') {
+      return (
+        <PongSettingsEditor
+          handleSettingChange={this.updateAndSaveSetting}
+          values={this.state.Config}
+          onHomeClicked={() => {
+            this.setState({
+              currentScreen: 'HOME'
+            });
+          }}
+        />
+      );
     }
   }
 
@@ -141,7 +154,7 @@ class Pong extends Component {
         HEIGHT: window.innerHeight
       },
 
-      timeLeft: this.config.GAME_DURATION,
+      timeLeft: this.state.Config.GAME_DURATION,
 
       currentScreen: 'ACTIVE_GAME'
     });
@@ -150,6 +163,14 @@ class Pong extends Component {
     this.tickTime = 40;
 
     window.requestAnimationFrame(this.executeDueTicks);
+  }
+
+  bindCallbacks_() {
+    this.executeDueTicks = this.executeDueTicks.bind(this);
+    this.start = this.start.bind(this);
+    this.pause = this.pause.bind(this);
+    this.openSettingsEditor = this.openSettingsEditor.bind(this);
+    this.updateAndSaveSetting = this.updateAndSaveSetting.bind(this);
   }
 
   calculateAndUpdateBallPosition_(newState) {
@@ -162,7 +183,7 @@ class Pong extends Component {
       if (ball.dx < (newState.screenDimensions.WIDTH / 2) &&
       ball.dy < (newState.screenDimensions.HEIGHT / 2)) {
         const ACCELERATION = newState.screenDimensions.WIDTH *
-          this.config.ACCELERATION_COEFFICIENT;
+          this.state.Config.ACCELERATION_COEFFICIENT;
 
         ball.dx += ball.dx > 0 ? ACCELERATION : -ACCELERATION;
         ball.dy += ball.dy > 0 ? ACCELERATION : -ACCELERATION;
@@ -189,7 +210,7 @@ class Pong extends Component {
   }
 
   calculatePointsAwarded_(newState) {
-    return ~~(10 * (2 - (newState.timeLeft / this.config.GAME_DURATION)));
+    return ~~(10 * (2 - (newState.timeLeft / this.state.Config.GAME_DURATION)));
   }
 
   executeDueTicks() {
@@ -212,8 +233,8 @@ class Pong extends Component {
   }
 
   getRandomBallSpeed_(width) {
-    const min = width * this.config.STARTING_SPEED_MIN_COEFFICIENT;
-    const max = width * this.config.STARTING_SPEED_MAX_COEFFICIENT;
+    const min = width * this.state.Config.STARTING_SPEED_MIN_COEFFICIENT;
+    const max = width * this.state.Config.STARTING_SPEED_MAX_COEFFICIENT;
 
     const abs = min + (Math.random() * (max - min));
 
@@ -270,6 +291,12 @@ class Pong extends Component {
     }
   }
 
+  openSettingsEditor() {
+    this.setState({
+      currentScreen: 'SETTINGS'
+    });
+  }
+
   pause() {
     this.setState({
       currentScreen: 'GAME_PAUSED'
@@ -302,6 +329,21 @@ class Pong extends Component {
       newState.currentScreen = 'GAME_OVER';
     }
     this.setState(newState);
+  }
+
+  updateAndSaveSetting(setting, value) {
+    value = ~~value;
+
+    if (value > 0 && setting in this.state.Config) {
+      const newConfig = { ...this.state.Config };
+      newConfig[setting] = value;
+
+      this.setState({
+        Config: newConfig
+      });
+
+      localStorage.setItem('pong-settings', JSON.stringify(newConfig));
+    }
   }
 }
 

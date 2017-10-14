@@ -43,8 +43,7 @@ function ActivePongGame({
 
         <PongButton
           onClick={onPauseClicked}
-          fontSize="20px"
-          align="bottom"
+          extraClassNames="PongButton-small PongButton-align-bottom"
         >
           Pause
         </PongButton>
