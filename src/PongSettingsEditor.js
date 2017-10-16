@@ -3,7 +3,7 @@ import PongSettingsPropertyInput from './PongSettingsPropertyInput';
 import PongButton from './PongButton';
 import './PongSettingsEditor.css';
 
-function PongSettingsEditor({ handleSettingChange, values, onHomeClicked }) {
+function PongSettingsEditor({ handlePropertyInputValueChange, handleFinishedSettingChange, values, onHomeClicked }) {
   return (
     <div className="PongSettingsEditor">
       {/*<table className="PongSettingsEditor-header-table">
@@ -47,7 +47,8 @@ function PongSettingsEditor({ handleSettingChange, values, onHomeClicked }) {
             property="GAME_DURATION"
             value={values.GAME_DURATION}
             unit="milliseconds"
-            handleSettingChange={handleSettingChange}
+            handlePropertyInputValueChange={handlePropertyInputValueChange}
+            handleFinishedSettingChange={handleFinishedSettingChange}
           />
 
           <PongSettingsPropertyInput
@@ -55,7 +56,8 @@ function PongSettingsEditor({ handleSettingChange, values, onHomeClicked }) {
             property="STARTING_SPEED_MIN_COEFFICIENT"
             value={values.STARTING_SPEED_MIN_COEFFICIENT}
             unit="multiplier of screen width"
-            handleSettingChange={handleSettingChange}
+            handlePropertyInputValueChange={handlePropertyInputValueChange}
+            handleFinishedSettingChange={handleFinishedSettingChange}
           />
 
           <PongSettingsPropertyInput
@@ -63,7 +65,8 @@ function PongSettingsEditor({ handleSettingChange, values, onHomeClicked }) {
             property="STARTING_SPEED_MAX_COEFFICIENT"
             value={values.STARTING_SPEED_MAX_COEFFICIENT}
             unit="multiplier of screen width"
-            handleSettingChange={handleSettingChange}
+            handlePropertyInputValueChange={handlePropertyInputValueChange}
+            handleFinishedSettingChange={handleFinishedSettingChange}
           />
 
           <PongSettingsPropertyInput
@@ -71,7 +74,8 @@ function PongSettingsEditor({ handleSettingChange, values, onHomeClicked }) {
             property="ACCELERATION_COEFFICIENT"
             value={values.ACCELERATION_COEFFICIENT}
             unit="multiplier of screen width"
-            handleSettingChange={handleSettingChange}
+            handlePropertyInputValueChange={handlePropertyInputValueChange}
+            handleFinishedSettingChange={handleFinishedSettingChange}
           />
         </tbody>
       </table>

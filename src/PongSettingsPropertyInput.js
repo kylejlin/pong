@@ -5,7 +5,8 @@ function PongSettingsPropertyInput({
   property,
   value,
   unit,
-  handleSettingChange
+  handlePropertyInputValueChange,
+  handleFinishedSettingChange
 }) {
   return (
     <tr>
@@ -15,7 +16,10 @@ function PongSettingsPropertyInput({
           type="text"
           value={value}
           onChange={(e) => {
-            handleSettingChange(property, e.target.value);
+            handlePropertyInputValueChange(property, e.target.value);
+          }}
+          onBlur={(e) => {
+            handleFinishedSettingChange(property, e.target.value);
           }}
         />
       </td>

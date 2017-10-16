@@ -16,6 +16,12 @@ class Pong extends Component {
         STARTING_SPEED_MAX_COEFFICIENT: 0.02,
         ACCELERATION_COEFFICIENT: 0.002,
         GAME_DURATION: 1.5e4
+      },
+      propertyInputValues: this.loadConfig() || {
+        STARTING_SPEED_MIN_COEFFICIENT: 0.01,
+        STARTING_SPEED_MAX_COEFFICIENT: 0.02,
+        ACCELERATION_COEFFICIENT: 0.002,
+        GAME_DURATION: 1.5e4
       }
     };
 
@@ -97,8 +103,9 @@ class Pong extends Component {
     } else if (currentScreen === 'SETTINGS') {
       return (
         <PongSettingsEditor
-          handleSettingChange={this.updateAndSaveSetting}
-          values={this.state.Config}
+          handlePropertyInputValueChange={this.handlePropertyInputValueChange}
+          handleFinishedSettingChange={this.updateAndSaveSetting}
+          values={this.state.propertyInputValues}
           onHomeClicked={() => {
             this.setState({
               currentScreen: 'HOME'
@@ -171,6 +178,7 @@ class Pong extends Component {
     this.pause = this.pause.bind(this);
     this.openSettingsEditor = this.openSettingsEditor.bind(this);
     this.updateAndSaveSetting = this.updateAndSaveSetting.bind(this);
+    this.handlePropertyInputValueChange = this.handlePropertyInputValueChange.bind(this);
   }
 
   calculateAndUpdateBallPosition_(newState) {
@@ -239,6 +247,16 @@ class Pong extends Component {
     const abs = min + (Math.random() * (max - min));
 
     return Math.random() > 0.5 ? abs : -abs;
+  }
+
+  handlePropertyInputValueChange(property, value) {
+    const newPropertyInputValues = { ...this.state.propertyInputValues };
+
+    newPropertyInputValues[property] = value;
+
+    this.setState({
+      propertyInputValues: newPropertyInputValues
+    });
   }
 
   isBallTouchingPaddle_(ball, paddle) {
@@ -331,18 +349,27 @@ class Pong extends Component {
     this.setState(newState);
   }
 
-  updateAndSaveSetting(setting, value) {
-    value = ~~value;
+  updateAndSaveSetting(property, value) {
+    value = +value;
 
-    if (value > 0 && setting in this.state.Config) {
-      const newConfig = { ...this.state.Config };
-      newConfig[setting] = value;
-
+    if (!(property in this.state.Config)) {
+      return;
+    } else if (value <= 0 || isNaN(value)) {
       this.setState({
-        Config: newConfig
+        propertyInputValues: {
+          ...this.state.propertyInputValues,
+          [property]: this.state.Config[property]
+        }
       });
-
-      localStorage.setItem('pong-settings', JSON.stringify(newConfig));
+    } else {
+      this.setState({
+        Config: {
+          ...this.state.Config,
+          [property]: value
+        }
+      }, () => {
+        localStorage.setItem('pong-settings', JSON.stringify(this.state.Config));
+      });
     }
   }
 }
