@@ -9,8 +9,8 @@ function PongGameSummary({ scores, timeLeft, onHomeClicked, onContinueClicked })
       <div className="PongGameSummary">
         <div className="PongGameSummary-title">Paused</div>
         <ScoreBoard scores={scores} timeLeft={timeLeft} />
-        <PongButton onClick={onContinueClicked} fontSize="40px">Continue</PongButton>
-        <PongButton onClick={onHomeClicked} fontSize="40px">Home</PongButton>
+        <PongButton onClick={onContinueClicked} extraClassNames="PongButton-medium">Continue</PongButton>
+        <PongButton onClick={onHomeClicked} extraClassNames="PongButton-medium">Home</PongButton>
       </div>
     );
   } else {
